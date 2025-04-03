@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Juego de Pelotas Explosivas</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.4.2/p5.min.js"></script>
+    <style>
+        body { margin: 0; overflow: hidden; }
+        canvas { display: block; }
+    </style>
+</head>
+<body>
+    <script>
+        let balls = [];
+        let blackHoles = [];
+        let gameOver = false;
+
+        class Ball {
+            constructor(x, y, radius) {
+                this.x = x;
+                this.y = y;
+                this.radius = radius;
+                this.speedX = random(-3, 3);
+                this.speedY = random(-3, -1);
+            }
+
+            move() {
+                this.x += this.speedX;
+                this.y += this.speedY;
+                if (this.x - this.radius <= 0 || this.x + this.radius >= width) {
+                    this.speedX = -this.speedX;
+                }
+                if (this.y - this.radius <= 0) {
+                    this.speedY = -this.speedY;
+                }
+                if (this.y + this.radius >= height) {
+                    this.speedY = -this.speedY;
+                    this.radius *= 1.011;
+                }
+            }
+
+            draw() {
+                fill(255, 0, 0);
+                ellipse(this.x, this.y, this.radius * 2);
+            }
+        }
+
+        class BlackHole {
+            constructor(x, y) {
+                this.x = x;
+                this.y = y;
+                this.radius = 30;
+            }
+
+            draw() {
+                fill(0);
+                ellipse(this.x, this.y, this.radius * 2);
+            }
+        }
+
+        function setup() {
+            createCanvas(windowWidth, windowHeight);
+            balls.push(new Ball(width / 2, height / 2, 20));
+            blackHoles = [
+                new BlackHole(50, 50),
+                new BlackHole(width - 50, 50),
+                new BlackHole(50, height - 50),
+                new BlackHole(width - 50, height - 50)
+            ];
+        }
+
+        function draw() {
+            if (!gameOver) {
+                background(255);
+                for (let hole of blackHoles) {
+                    hole.draw();
+                }
+                let newBalls = [];
+                for (let i = balls.length - 1; i >= 0; i--) {
+                    let ball = balls[i];
+                    ball.move();
+                    ball.draw();
+                    for (let hole of blackHoles) {
+                        let d = dist(ball.x, ball.y, hole.x, hole.y);
+                        if (d < ball.radius + hole.radius) {
+                            gameOver = true;
+                            textSize(32);
+                            fill(0);
+                            text("Game Over", width / 2 - 80, height / 2);
+                            return;
+                        }
+                    }
+                    if (ball.radius * 2 >= min(width, height)) {
+                        for (let j = 0; j < 3; j++) {
+                            newBalls.push(new Ball(ball.x, ball.y, 20));
+                        }
+                        balls.splice(i, 1);
+                    }
+                }
+                balls = balls.concat(newBalls);
+            }
+        }
+
+        function windowResized() {
+            resizeCanvas(windowWidth, windowHeight);
+            blackHoles[1].x = width - 50;
+            blackHoles[2].y = height - 50;
+            blackHoles[3].x = width - 50;
+            blackHoles[3].y = height - 50;
+        }
+
+        function mousePressed() {
+            if (gameOver) {
+                balls = [new Ball(width / 2, height / 2, 20)];
+                gameOver = false;
+            }
+        }
+    </script>
+</body>
+</html>

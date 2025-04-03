@@ -19,8 +19,8 @@
                 this.x = x;
                 this.y = y;
                 this.radius = radius;
-                this.speedX = random(-9, 9);
-                this.speedY = random(-9, -3);
+                this.speedX = random(-30, 30);
+                this.speedY = random(-30, -10);
             }
 
             move() {
@@ -34,7 +34,7 @@
                 }
                 if (this.y + this.radius >= height) {
                     this.speedY = -this.speedY;
-                    this.radius *= 1.014;
+                    this.radius *= 1.025;
                 }
             }
 
